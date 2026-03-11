@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "astryin"
+version = "0.1.0"
+description = "Navigation behavior analysis for robotics systems"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "typer",
+    "rich",
+    "numpy",
+    "matplotlib",
+]
+
+[project.scripts]
+astryin = "astryin.cli.main:app"
+
+# Add this section to specify the package directory for wheel builds
+[tool.hatch.build.targets.sdist]
+include = ["/src"]
+
+[tool.hack.build.targets.wheel]
+packages = ["src/astryin"]
