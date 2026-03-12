@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_odom(odom, output_file="outputs/odom.png"):
+def plot_odom(odom):
     if not odom:
         print("No odometry data to plot")
         return
@@ -31,6 +31,4 @@ def plot_odom(odom, output_file="outputs/odom.png"):
 
     plt.grid(True)
 
-    plt.savefig(output_file)
-
-    print(f"Odometry plot saved to {output_file}")
+    plt.show()

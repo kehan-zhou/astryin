@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_plan(plan, output_file="outputs/plan.png"):
+def plot_plan(plan):
     if not plan:
         print("No plan data to plot")
         return
@@ -31,6 +31,4 @@ def plot_plan(plan, output_file="outputs/plan.png"):
 
     plt.grid(True)
 
-    plt.savefig(output_file, dpi=150)
-
-    print(f"Plan plot saved to {output_file}")
+    plt.show()

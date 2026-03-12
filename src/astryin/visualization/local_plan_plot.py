@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_local_plan(local_plan, output_file="outputs/local_plan.png"):
+def plot_local_plan(local_plan):
     if not local_plan:
         print("No local plan data to plot")
         return
@@ -28,6 +28,4 @@ def plot_local_plan(local_plan, output_file="outputs/local_plan.png"):
 
     plt.grid(True)
 
-    plt.savefig(output_file, dpi=150)
-
-    print(f"Local plan plot saved to {output_file}")
+    plt.show()

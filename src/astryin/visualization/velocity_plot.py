@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_velocity_profile(odom_times, motion_start, odom_velocities, cmd_vel_times, cmd_vel_velocities, output_file="outputs/velocity_profile.png"):
+def plot_velocity_profile(odom_times, motion_start, odom_velocities, cmd_vel_times, cmd_vel_velocities):
     if not odom_times or not odom_velocities or not cmd_vel_times or not cmd_vel_velocities:
         print("No velocity data to plot")
         return
@@ -23,6 +23,4 @@ def plot_velocity_profile(odom_times, motion_start, odom_velocities, cmd_vel_tim
 
     plt.grid(True)
 
-    plt.savefig(output_file, dpi=150)
-    
-    print(f"Velocity profile plot saved to {output_file}")
+    plt.show()

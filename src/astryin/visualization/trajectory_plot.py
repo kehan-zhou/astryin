@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def plot_trajectory(odom, plan, local_plan, output_file="outputs/trajectory.png"):
+def plot_trajectory(odom, plan, local_plan):
     available = sum([
         bool(odom),
         bool(plan),
@@ -49,6 +49,4 @@ def plot_trajectory(odom, plan, local_plan, output_file="outputs/trajectory.png"
     plt.grid(True)
     plt.legend()
 
-    plt.savefig(output_file, dpi=200)
-
-    print(f"Trajectory plot saved to {output_file}")
+    plt.show()
