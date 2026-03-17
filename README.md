@@ -18,7 +18,7 @@ Clone the repository and install in editable mode:
 ```bash
 git clone https://github.com/kehan-zhou/astryin.git
 cd astryin
-pip install -e
+pip install -e .
 ```
 
 ## Examples
