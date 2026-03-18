@@ -1,3 +1,5 @@
+import os
+
 from astryin.models.pose import Pose
 from astryin.models.velocity import Velocity
 
@@ -8,10 +10,17 @@ from rosbag2_py import SequentialReader, StorageOptions, ConverterOptions
 
 
 def read_data(bag_path: str):
+    if not os.path.exists(bag_path):
+        raise FileNotFoundError(f"Bag file not found: {bag_path}")
+
     storage_options = StorageOptions(uri=bag_path, storage_id="sqlite3")
     converter_options = ConverterOptions("", "")
     reader = SequentialReader()
-    reader.open(storage_options, converter_options)
+    
+    try:
+        reader.open(storage_options, converter_options)
+    except Exception as e:
+        raise RuntimeError(f"Failed to open the bag file: {str(e)}")
 
     odom, cmd_vel, plan, local_plan = [], [], [], []
 
