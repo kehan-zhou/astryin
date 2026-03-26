@@ -19,9 +19,12 @@ dependencies = [
 [project.scripts]
 astryin = "astryin.cli.main:app"
 
-# Add this section to specify the package directory for wheel builds
 [tool.hatch.build.targets.sdist]
 include = ["/src"]
 
-[tool.hack.build.targets.wheel]
+[tool.hatck.build.targets.wheel]
 packages = ["src/astryin"]
+
+[project.urls]
+Homepage = "https://github.com/kehan-zhou/astryin"
+Issues = "https://github.com/kehan-zhou/astryin/issues"
