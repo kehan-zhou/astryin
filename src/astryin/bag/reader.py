@@ -29,39 +29,9 @@ def read_data(bag_path: str):
     converter_options = ConverterOptions("", "")
     reader = SequentialReader()
     
-    try:
-        reader.open(storage_options, converter_options)
-    except Exception as e:
-        raise RuntimeError(f"Failed to open the bag file: {str(e)}")
+    reader.open(storage_options, converter_options)
 
-    initial_map_to_odom = None
-
-    scan_reader = SequentialReader()
-    scan_reader.open(storage_options, converter_options)
-
-    while scan_reader.has_next():
-        topic, data, _ = scan_reader.read_next()
-        if topic in ["/tf", "/tf_static"]:
-            msg = deserialize_message(data, TFMessage)
-            for transform in msg.transforms:
-                if transform.header.frame_id == "map" and transform.child_frame_id == "odom":
-                    t = transform.transform.translation
-                    r = transform.transform.rotation
-
-                    is_translated = abs(t.x) > 0.001 or abs(t.y) > 0.001
-                    is_rotated = abs(r.z) > 0.001
-
-                    if is_translated or is_rotated:
-                        initial_map_to_odom = {
-                            "dx": t.x, "dy": t.y, "yaw": quaternion_to_yaw(r)
-                        }
-                        break
-
-            if initial_map_to_odom:
-                break
-        
-    if not initial_map_to_odom:
-        initial_map_to_odom = {"dx": 0.0, "dy": 0.0, "yaw": 0.0}
+    current_tf = {"dx": 0.0, "dy": 0.0, "yaw": 0.0}
 
     odom_raw, cmd_vel, plan, local_plan = [], [], [], []
     
@@ -69,11 +39,29 @@ def read_data(bag_path: str):
 
     while reader.has_next():
         topic, data, timestamp = reader.read_next()
+
+        if topic in ["/tf", "/tf_static"]:
+            msg = deserialize_message(data, TFMessage)
+            for transform in msg.transforms:
+                if transform.header.frame_id == "map" and transform.child_frame_id == "odom":
+                    t = transform.transform.translation
+                    r = transform.transform.rotation
+                    current_tf = {
+                        "dx": t.x, 
+                        "dy": t.y, 
+                        "yaw": quaternion_to_yaw(r)
+                    }
                     
         if topic == "/odom":
             msg = deserialize_message(data, Odometry)
-            map_x, map_y = apply_transform(msg.pose.pose.position.x, msg.pose.pose.position.y,
-                                            initial_map_to_odom["dx"], initial_map_to_odom["dy"], initial_map_to_odom["yaw"])
+            map_x, map_y = apply_transform(
+                msg.pose.pose.position.x, 
+                msg.pose.pose.position.y,
+                current_tf["dx"], 
+                current_tf["dy"], 
+                current_tf["yaw"]
+            )
+            
             t = timestamp / 1e9
             odom_raw.append(Pose(t, map_x, map_y))
         
