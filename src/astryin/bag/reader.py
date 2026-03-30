@@ -33,12 +33,18 @@ def read_data(bag_path: str):
 
     current_tf = {"dx": 0.0, "dy": 0.0, "yaw": 0.0}
 
+    first_timestamp = None
+
     odom_raw, cmd_vel, plan, local_plan = [], [], [], []
     
     plan_found = False
 
     while reader.has_next():
         topic, data, timestamp = reader.read_next()
+
+        if first_timestamp is None:
+            first_timestamp = timestamp / 1e9
+        t_relative = timestamp / 1e9 - first_timestamp
 
         if topic in ["/tf", "/tf_static"]:
             msg = deserialize_message(data, TFMessage)
@@ -62,23 +68,23 @@ def read_data(bag_path: str):
                 current_tf["yaw"]
             )
             
-            t = timestamp / 1e9
-            odom_raw.append(Pose(t, map_x, map_y))
+            actual_v = msg.twist.twist.linear.x
+
+            odom_raw.append(Pose(t_relative, map_x, map_y, actual_v))
         
         if topic == "/cmd_vel":
             msg = deserialize_message(data, Twist)
-            t = timestamp / 1e9
-            cmd_vel.append(Velocity(t, msg.linear.x))
+            cmd_vel.append(Velocity(t_relative, msg.linear.x))
         
         if topic == "/plan" and not plan_found:
             msg = deserialize_message(data, Path)
             for pose in msg.poses:
-                plan.append(Pose(timestamp/1e9, pose.pose.position.x, pose.pose.position.y))
+                plan.append(Pose(t_relative, pose.pose.position.x, pose.pose.position.y, 0.0))
             plan_found = True
 
         if topic == "/local_plan":
             msg = deserialize_message(data, Path)
-            lp = [Pose(timestamp/1e9, p.pose.position.x, p.pose.position.y) for p in msg.poses]
+            lp = [Pose(t_relative, p.pose.position.x, p.pose.position.y, 0.0) for p in msg.poses]
             local_plan.append(lp)
 
     return odom_raw, cmd_vel, plan, local_plan

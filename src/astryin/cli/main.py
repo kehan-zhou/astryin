@@ -140,18 +140,12 @@ def plot_velocity_cmd(bag_path: str):
         error("No /cmd_vel data found in the bag file.")
         raise typer.Exit()
     
-    motion_odom = trim_motion_window(odom)
-
-    motion_start = motion_odom[0].timestamp - odom[0].timestamp
-    motion_end = motion_odom[-1].timestamp - odom[0].timestamp
-    
     cmd_vel_times, cmd_vel_velocities = unpack_cmd_vel(cmd_vel)
 
     odom_times, odom_velocities = compute_velocity_profile(odom)
 
     plot_velocity_profile(
         odom_times, 
-        motion_start, 
         odom_velocities, 
         cmd_vel_times, 
         cmd_vel_velocities
