@@ -1,17 +1,12 @@
 # Astryin - ROS2 Navigation Behavior Analysis Toolkit
 
-**Astryin** is a tool for analyzing and visualizing ROS2 navigation behavior using recorded bag files. It helps developers track subtle behavioral changes in navigation, often missed by traditional debugging methods.
+**Astryin** is a post-mortem analysis tool for ROS 2 navigation. It enables developers to visualize and quantify robot behavior from recorded bag files.
 
-## Problem We Are Solving
+## Why Astryin?
 
-One of the biggest challenges in ROS2 navigation is understanding and analyzing the behavior of a robot's navagation over time, especially after parameter tuning or system changes. Common issues developers face include:
+Tuning Nav2 is often an exercise in trial and error. When a robot oscillates or hesitates, developers typically rely on subjective observations.
 
-- **Oscillations and zig-zags** in robot movement.
-- Behavior differences between **simulation and real-world performance**.
-- **Unpredictable failures** when tuning parameters.
-- Difficulty in comparing different runs of navigation and pinpointing what changed between them.
-
-Astryin aims to solve these problems by providing an easy-to-use framework to analyze and visualize key navigation metrics like velocity profiles, tracking errors, and trajectory analysis from bag files. This enables developers to quickly understand what's happening under the hood of their robots and improve their system performance in a more informed way.
+Astryin solves this by providing structured, data-driven insights into velocity profiles, tracking errors, and trajectory consistency.
 
 ## Installation
 
@@ -23,13 +18,13 @@ cd astryin
 pip install -e .
 ```
 
-## Examples
+**Note:** Requires a ROS 2 environment installed.
 
-Here are some examples of how to use Astryin with recorded ROS2 bag files.
+## Core Features & Usage
 
-### Example 1: Analyze a ROS2 bag file
+### 1. Quantitative Metrics
 
-Run the following command to analyze a bag.
+Extract hard numbers to compare performance across different parameter sets.
 
 ```bash
 astryin analyze examples/turtlebot3_navigation
@@ -38,7 +33,7 @@ astryin analyze examples/turtlebot3_navigation
 Output:
 
 ```bash
-[INFO] [1773133167.318602742] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
+[INFO] [1774939863.695093815] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
 
 Bag Summary
 -------------------------------
@@ -48,23 +43,29 @@ Plan samples:          138
 
 Motion Window
 -------------------------------
-Motion start:          23.18 s
-Motion end:            41.93 s
+Motion start:          23.21 s
+Motion end:            41.97 s
 Motion duration:       18.75 s
 Motion odom samples:   552
 
 Trajectory Metrics
 -------------------------------
-Path length:           3.43 m
+Path length:           3.56 m
 Mean velocity:         0.18 m/s
 Max velocity:          0.23 m/s
-Mean tracking error:   0.045 m
-Max tracking error:    0.178 m
+Mean tracking error:   0.055 m
+Max tracking error:    0.242 m
 ```
 
-### Example 2: Visualize velocity profile
+Key Metrics Provided:
 
-Use the following command to compare the robot's odometry velocity with the commanded velocity:
+- Trajectory Tracking Error: Mean and Max Euclidean distance from the global plan.
+- Motion Windowing: Automatically trims stationary data at the start/end for accurate velocity stats.
+- Path Efficiency: Total distance traveled vs. planned path length.
+
+### 2. Velocity Profile Analysis
+
+Compare commanded velocity (`/cmd_vel`) vs. actual execution(`/odom`)
 
 ```bash
 astryin plot velocity examples/turtlebot3_navigation
@@ -74,14 +75,13 @@ Output:
 
 ```bash
 [INFO] [1773133209.823054913] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
-Velocity profile plot saved to outputs/velocity_profile.png
 ```
 
 ![velocity_profile_example.png](docs/velocity_profile_example.png "")
 
-### Example 3: Visualize the trajectory
+### 3. Comprehensive Trajectory Visualization
 
-Use the following command to visualize the robot's trajectory, including odometry, global plan, and local plan:
+One view to rule them all: Global Plan, Local Plan clusters, and Odom trajectory.
 
 ```bash
 astryin plot trajectory examples/turtlebot3_navigation
@@ -91,61 +91,9 @@ Output:
 
 ```bash
 [INFO] [1773190749.119507577] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
-odom (/odom): loaded
-plan (/plan): loaded
-local_plan (/local_plan): loaded
-Trajectory plot saved to outputs/trajectory.png
 ```
 
 ![trajectory_example.png](docs/trajectory_example.png "")
 
-### Example 4: Visualize odometry data
-
-Use the following command to visualize the robot's odometry data:
-
-```bash
-astryin plot odom examples/turtlebot3_navigation
-```
-
-Output:
-
-```bash
-[INFO] [1773191090.655977896] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
-Odometry plot saved to outputs/odom.png
-```
-
-![odom_example.png](docs/odom_example.png "")
-
-### Example 5: Visualize global plan
-
-Use the following command to visualize the robot's global plan data:
-
-```bash
-astryin plot plan examples/turtlebot3_navigation
-```
-
-Output:
-
-```bash
-[INFO] [1773191962.643313462] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
-Plan plot saved to outputs/plan.png
-```
-
-![plan_example.png](docs/plan_example.png "")
-
-### Example 6: Visualize local plan
-
-Use the following command to visualize the robot's local plan data:
-
-```bash
-astryin plot local_plan examples/turtlebot3_navigation
-```
-
-Output:
-
-```bash
-[INFO] [1773191284.541984597] [rosbag2_storage]: Opened database 'examples/turtlebot3_navigation/turtlebot3_navigation_0.db3' for READ_ONLY.
-Local plan plot saved to outputs/local_plan.png
-```
-
-![local_plan_example.png](docs/local_plan_example.png "")
+- **Dynamic TF Compensation:** Automatically extracts `map -> odom` transforms to align disparate coordinate frames.
+- **Local Plan Density:** Visualizes how the local controller "thinks" over time.
